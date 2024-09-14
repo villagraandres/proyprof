@@ -4,3 +4,7 @@ from django.db import models
 from django.core.files.storage import default_storage
 # Create your models here.
 
+
+class Materia(models.Model):
+    nombre=models.CharField(max_length=60)
+    
