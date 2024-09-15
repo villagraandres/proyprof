@@ -66,6 +66,32 @@ def crear(request):
 def dash(request):
     return render(request,"auth/dash.html")
 
+#def gen_trans():
+   # cap = cv2.VideoCapture(0)  # Capture video from the first camera (0)
+    
+   # while True:
+   #     success, frame = cap.read()  # Read a frame
+   #     if not success:
+   #         frame = np.zeros((640, 480, 3), dtype=np.uint8)  # Black image
+   #         cv2.putText(frame, 'No Feed', (30, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+   #         logger.warning("No image feed, try restarting camera")
+            
+   #     else:
+            # Encode frame as JPEG
+   #         frame = cv2.resize(frame, (640, 480))
+   #         frame = cv2.GaussianBlur(frame,(5,5),0)
+   #         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+   #         _,frame = cv2.threshold(frame,0,255,cv2.THRESH_BINARY)
+            
+        
+  #      _, buffer = cv2.imencode('.jpg', frame)
+        
+ #       frame = buffer.tobytes()
+        
+        # Yield frame in byte format
+#        yield (b'--frame\r\n'
+#                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
 def gen_frames():  
     cap = cv2.VideoCapture(0)  # Capture video from the first camera (0)
     
@@ -79,40 +105,25 @@ def gen_frames():
         else:
             # Encode frame as JPEG
             frame = cv2.resize(frame, (640, 480))
-            
-        time.sleep(0.034)
-        # Yield frame in byte format
-        yield (frame)
+            frame = cv2.GaussianBlur(frame,(5,5),0)
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            _,frame = cv2.threshold(frame,65,255,cv2.THRESH_BINARY)
         
-def format(frame):
-    return()
+        _, buffer = cv2.imencode('.jpg', frame)
+        
+        frame = buffer.tobytes()
+        
+        # Yield frame in byte format
+        yield (b'--frame\r\n'
+                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
 # View for rendering the page with the video feed
 def video_feed(request):
-    
-    frame = gen_frames()
-    _, buffer = cv2.imencode('.jpg', frame)
-        
-    frame = buffer.tobytes()
-    
-    # Yield frame in byte format
-    
-    return StreamingHttpResponse(final, content_type='multipart/x-mixed-replace; boundary=frame')
+    return StreamingHttpResponse(gen_frames(), content_type='multipart/x-mixed-replace; boundary=frame')
 
-def trans_feed(request):
-    frame = gen_frames()
-    frame2 = cv2.GaussianBlur(frame,(5,5),0)
-    ret3,frame = cv2.threshold(frame2,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-    
-    
-    _, buffer = cv2.imencode('.jpg', frame)
-        
-    frame = buffer.tobytes()
-    
-    # Yield frame in byte format
-    final = (b'--frame\r\n'
-             b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-    return StreamingHttpResponse(final, content_type='multipart/x-mixed-replace; boundary=frame')
+#def trans_feed(request):
+#    return StreamingHttpResponse(gen_trans(), content_type='multipart/x-mixed-replace; boundary=frame')
+
 
 # View to render the HTML template that will show the video feed
 def camera(request):
