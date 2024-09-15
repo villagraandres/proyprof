@@ -19,25 +19,19 @@
     </header>
     <div class="main-container">
         <section class="class-options">
-            <a href="{% url 'estudiantes' clase.id %}" id="estudiantes-link">
+            <a href="{%url 'crearExamen'  %}" id="estudiantes-link">
                 <div class="option-box" id="estudiantes">
                     <div class="icon">😊</div>
-                    <h3>Estudiantes</h3>
+                    <h3>CREAR</h3>
                 </div>
             </a>
-            <a href="" id="estadisticas-link">
+            <a href="#" id="estadisticas-link">
                 <div class="option-box" id="estadisticas">
                     <div class="icon">📊</div>
-                    <h3>Estadísticas</h3>
+                    <h3>ESCANEAR</h3>
                 </div>
             </a>
-            
-            <a href="{% url 'examenes' clase.id %}" id="examenes-link">
-                <div class="option-box" id="examenes">
-                    <div class="icon">📋</div>
-                    <h3>Exámenes</h3>
-                </div>
-            </a>
+           
         </section>
     </div>
 

@@ -1,10 +1,11 @@
+{%load static%}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crear Examen y Subir Calificaciones</title>
-    <link rel="stylesheet" href="examenes_style.css">
+    <link rel="stylesheet" href="{% static 'examenes_style.css' %}">
 </head>
 <body>
     <div class="container">
@@ -12,38 +13,31 @@
 
         <!-- Sección para crear un examen -->
         <h2>Crear Examen</h2>
-        <form id="createExamForm">
+        <form id="createExamForm" method="POST">
+            {% csrf_token %}
             <label for="examTitle">Título del Examen:</label>
             <input type="text" id="examTitle" name="examTitle" placeholder="Título del Examen" required>
+
+            <label for="examTitle">Paginas del examen:</label>
+            <input type="text" id="examTitle" name="pags" placeholder="Paginas del examen" required>
 
             <label for="numQuestions">Número de Preguntas:</label>
             <input type="number" id="numQuestions" name="numQuestions" placeholder="Cantidad de preguntas" min="1" required>
 
             <h3>Configurar Preguntas y Respuestas</h3>
 
-            <!-- Bloques de preguntas dinámicos se insertarán aquí -->
             <div id="questionContainer"></div>
 
             <button type="submit">Crear Examen</button>
         </form>
 
-        <!-- Sección para subir calificaciones automáticamente -->
-        <h2>Subir Calificaciones Automáticamente</h2>
-        <form id="uploadGradesForm" enctype="multipart/form-data">
-            <label for="selectExam">Seleccionar Examen:</label>
-            <select id="selectExam" name="selectExam" required>
-                <option value="exam1">Examen 1</option>
-                <option value="exam2">Examen 2</option>
-                <!-- Aquí se agregarían dinámicamente más exámenes creados -->
-            </select>
+       
 
-            <label for="photoUpload">Subir Foto del Examen:</label>
-            <input type="file" id="photoUpload" name="photoUpload" accept="image/*" required>
-
+            
             <button type="submit">Subir y Calificar</button>
         </form>
     </div>
 
-    <script src="examenes.js"></script>
+    <script src="{% static 'js/examenes.js' %}"></script>
 </body>
 </html>

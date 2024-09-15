@@ -9,7 +9,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 import json
-from .models import Clase, Profile  # Import Profile
+from .models import Clase, Profile,Examen # Import Profile
 from google.cloud import vision
 import io
 
@@ -126,9 +126,45 @@ def imagen():
 
 
 
+
+
+def examenes(request, claseId):
+    clase = get_object_or_404(Clase, id=claseId)
+    return render(request, 'auth/examenes.html', {'clase': clase})
+
+
 def clase(request,claseId):
     clase= get_object_or_404(Clase, id=claseId)
     return render(request,"auth/clase.html", {'clase': clase})
+
+def crearExamen(request):
+    if request.method == 'POST':
+        # Obtener los datos del formulario
+        nombre = request.POST.get('examTitle')
+        num_preguntas = int(request.POST.get('numQuestions'))
+        pags = request.POST.get('pags')
+
+        # Guardar el examen en la base de datos
+        examen = Examen.objects.create(
+            nombre=nombre,
+            pags=pags,
+            num_preguntas=num_preguntas,
+            preguntas_y_respuestas=""  
+        )
+        
+        respuestas_correctas = {}
+        for i in range(1, num_preguntas + 1):
+            respuesta = request.POST.get(f'correctAnswer{i}')
+            if respuesta:
+                respuestas_correctas[str(i)] = respuesta
+        
+        examen.preguntas_y_respuestas = json.dumps(respuestas_correctas)
+        examen.save()
+
+        return redirect('examenes')
+
+    return render(request, 'auth/crearExamen.html')
+
 
 def estudiantes(request,claseId):
     clase= get_object_or_404(Clase, id=claseId)

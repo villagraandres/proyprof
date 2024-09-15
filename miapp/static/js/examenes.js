@@ -8,39 +8,24 @@ document.addEventListener("DOMContentLoaded", function() {
         // Elimina los bloques de preguntas anteriores, si los hay
         clearPreviousQuestions();
 
-        // Generar los bloques de preguntas dinámicamente
+        // Generar los bloques de respuestas correctas dinámicamente
         const numQuestions = parseInt(numQuestionsInput.value);
         for (let i = 1; i <= numQuestions; i++) {
-            createQuestionBlock(i);
+            createAnswerBlock(i);
         }
     });
 
-    // Función para crear un bloque de preguntas y respuestas correctas
-    function createQuestionBlock(questionNum) {
-        // Crear un nuevo div contenedor para la pregunta
-        const newQuestionBlock = document.createElement('div');
-        newQuestionBlock.classList.add('question-block');
-
-        // Etiqueta de la pregunta
-        const questionLabel = document.createElement('label');
-        questionLabel.setAttribute('for', `question${questionNum}`);
-        questionLabel.textContent = `Pregunta ${questionNum}:`;
-        newQuestionBlock.appendChild(questionLabel);
-
-        // Input para la pregunta
-        const questionInput = document.createElement('input');
-        questionInput.type = 'text';
-        questionInput.id = `question${questionNum}`;
-        questionInput.name = `question${questionNum}`;
-        questionInput.placeholder = `Escribe la pregunta ${questionNum}`;
-        questionInput.required = true;
-        newQuestionBlock.appendChild(questionInput);
+    // Función para crear un bloque de respuesta correcta
+    function createAnswerBlock(questionNum) {
+        // Crear un nuevo div contenedor para la respuesta
+        const newAnswerBlock = document.createElement('div');
+        newAnswerBlock.classList.add('answer-block');
 
         // Etiqueta para la respuesta correcta
         const correctAnswerLabel = document.createElement('label');
         correctAnswerLabel.setAttribute('for', `correctAnswer${questionNum}`);
-        correctAnswerLabel.textContent = 'Respuesta Correcta:';
-        newQuestionBlock.appendChild(correctAnswerLabel);
+        correctAnswerLabel.textContent = `Respuesta Correcta ${questionNum}:`;
+        newAnswerBlock.appendChild(correctAnswerLabel);
 
         // Input para la respuesta correcta
         const correctAnswerInput = document.createElement('input');
@@ -49,13 +34,13 @@ document.addEventListener("DOMContentLoaded", function() {
         correctAnswerInput.name = `correctAnswer${questionNum}`;
         correctAnswerInput.placeholder = 'Escribe la respuesta correcta';
         correctAnswerInput.required = true;
-        newQuestionBlock.appendChild(correctAnswerInput);
+        newAnswerBlock.appendChild(correctAnswerInput);
 
-        // Insertar el nuevo bloque en el contenedor de preguntas
-        questionContainer.appendChild(newQuestionBlock);
+        // Insertar el nuevo bloque en el contenedor de respuestas
+        questionContainer.appendChild(newAnswerBlock);
     }
 
-    // Función para limpiar las preguntas generadas previamente
+    // Función para limpiar las respuestas generadas previamente
     function clearPreviousQuestions() {
         questionContainer.innerHTML = '';
     }

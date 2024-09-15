@@ -17,3 +17,10 @@ class Clase(models.Model):
 
     def __str__(self):
         return self.nombre
+
+class Examen(models.Model):
+    nombre = models.CharField(max_length=255)
+    pags=models.IntegerField()
+    num_preguntas = models.IntegerField()
+    preguntas_y_respuestas = models.TextField()  
+    maestro=models.ForeignKey(Profile,related_name='examenes',on_delete=models.CASCADE)
