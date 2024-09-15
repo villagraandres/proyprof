@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect,get_object_or_404
 from django.http import HttpResponse, JsonResponse  # Import JsonResponse
 from django.db import IntegrityError
 from django.contrib.auth.models import User
+from django.conf import settings
 import logging
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
@@ -19,6 +20,9 @@ import time
 import cv2
 from django.http import StreamingHttpResponse
 from django.http import HttpResponseRedirect
+import datetime
+from os import path
+import os
 logger = logging.getLogger(__name__)
 @csrf_exempt
 def index(request):
@@ -206,6 +210,7 @@ def estudiantes(request,claseId):
 
 framework = []
 def gen_frames():  
+    global framework
     cap = cv2.VideoCapture(0)  # Capture video from the first camera (0)
     lastSux = []
     while True:
@@ -269,14 +274,36 @@ def gen_frames():
         _, buffer = cv2.imencode('.jpg', frame)
         
         frame = buffer.tobytes()
-        logger.warning("Frame ending")
+        #logger.warning("Frame ending")
         # Yield frame in byte format
         yield (b'--frame\r\n'
                 b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
         
 def screnie(request):
+    global framework
     frame = framework
-    return HttpResponse(frame.tobytes(), content_type='image/jpeg')
+
+    # Ensure the media directory exists
+    if not os.path.exists(settings.MEDIA_ROOT):
+        os.makedirs(settings.MEDIA_ROOT)
+
+    # Construct the file path
+    img_name = f"screenshot_{datetime.date.today()}.png"
+    img_path = os.path.join(settings.MEDIA_ROOT, img_name)
+    
+    # Save the image to the media folder
+    success = cv2.imwrite(img_path, frame)
+    if not success:
+        return HttpResponse("Failed to save image", status=500)
+
+    # Encode the frame as a JPEG image
+    _, buffer = cv2.imencode('.jpg', frame)  
+
+    # Convert the buffer to bytes
+    frame_bytes = buffer.tobytes()
+
+    # Return the image as an HTTP response
+    return HttpResponse(frame_bytes, content_type='image/jpeg')
 
 # View for rendering the page with the video feed
 def video_feed(request):
@@ -288,4 +315,13 @@ def video_feed(request):
 
 # View to render the HTML template that will show the video feed
 def camera(request):
-    return render(request, 'camara/layout.html')
+
+    context = {
+            "active": False
+        }
+    #if request.method == "POST":
+    #    request.POST.get("btnTomarFoto")
+    #    context["active"] = True
+    #    return render(request, 'camara/layout.html', context)
+
+    return render(request, 'camara/layout.html', context)

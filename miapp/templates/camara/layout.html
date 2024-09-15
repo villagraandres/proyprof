@@ -59,11 +59,29 @@
         <img id="original" src="{% url 'live_feed' %}" width="640" height="480"/>
     </div>
 
+    <div>
+        <!-- El video que está en el código original -->
+        <img id="image_display" width="640" height="480"/>
+    </div>
+
     <!-- Añadir el botón en el centro debajo del video -->
     <button id="btnTomarFoto">Tomar Foto</button>
 
     <!-- Canvas estará oculto por CSS pero se mostrará con JavaScript cuando sea necesario -->
     <canvas id="canvas" width="640" height="480"></canvas>
 
+    <script>
+        document.getElementById('btnTomarFoto').addEventListener('click', function() {
+        var image = document.getElementById('image_display');
+        // Change the source of the image
+        image.src = "{% url 'screenshot' %}";
+
+        // Reload the page after 2 seconds
+        setTimeout(() => {
+            window.location.reload();
+        }, 2000);
+    });s
+
+    </script>
 </body>
 </html>
