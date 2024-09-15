@@ -20,7 +20,7 @@
                         <tr>
                             <th>Nombre</th>
                             <th>Matrícula</th>
-                           
+                            <th>Calificaciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -28,6 +28,13 @@
                         <tr>
                             <td>{{ estudiante.nombre }}</td>
                             <td>{{ estudiante.matricula }}</td>
+                            <td>
+                                {% if estudiante.calificaciones %}
+                                    {{ estudiante.calificaciones }}
+                                {% else %}
+                                    Aun no se registran calificaciones
+                                {% endif %}
+                            </td>
                             
                         </tr>
                         {% endfor %}
@@ -36,8 +43,7 @@
             </section>
         </main>
         <div class="buttons-container">
-            <button class="add">Añadir Estudiante</button>
-            <!-- File upload form -->
+           
             <form action="{% url 'subir_excel' %}" method="post" enctype="multipart/form-data" class="upload-form">
                 {% csrf_token %}
                 <input type="file" name="excel_file" accept=".xlsx, .xls" class="file-input">

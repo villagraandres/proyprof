@@ -1,0 +1,29 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Exámenes</title>
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Exámenes de la Clase: {{ clase.nombre }}</h1>
+    </header>
+    <main>
+        <section class="exam-list">
+            <h2>Lista de Exámenes</h2>
+            <div class="exams">
+                {% for examen in examenes %}
+                <a href="{% url 'camera' clase.id examen.id %}" class="exam-block">
+                    <h3>{{ examen.nombre }}</h3>
+                    <p>ID: {{ examen.id }}</p>
+                    <p>Fecha: {{ examen.fecha }}</p>
+                </a>
+                {% endfor %}
+            </div>
+        </section>
+    </main>
+</body>
+</html>

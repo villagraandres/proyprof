@@ -23,6 +23,10 @@ from django.http import HttpResponseRedirect
 import datetime
 from os import path
 import os
+import re
+from google.cloud import vision
+from PIL import Image
+
 logger = logging.getLogger(__name__)
 @csrf_exempt
 def index(request):
@@ -176,7 +180,7 @@ def crearExamen(request,claseId):
         examen.preguntas_y_respuestas = json.dumps(respuestas_correctas)
         examen.save()
 
-        return redirect('examenes')
+        
 
     return render(request, 'auth/crearExamen.html')
 
@@ -267,7 +271,7 @@ def gen_frames():
                     
                 pts2 = np.float32([[0, 0], [0, 640], [480, 640], [480, 0]])
                 M = cv2.getPerspectiveTransform(pts1, pts2)
-                framework = cv2.warpPerspective(frame2, M, (480, 640))
+                framework = cv2.warpPerspective(frame, M, (480, 640))
             
             #cv2.drawContours(frame, approx, -1, (0,0,255), 3)
         
@@ -281,43 +285,95 @@ def gen_frames():
         
 def screnie(request):
     global framework
-    frame = framework
+    global selected
+    selected = framework
 
-    # Ensure the media directory exists
-    if not os.path.exists(settings.MEDIA_ROOT):
-        os.makedirs(settings.MEDIA_ROOT)
-
-    # Construct the file path
-    img_name = f"screenshot_{datetime.date.today()}.png"
-    img_path = os.path.join(settings.MEDIA_ROOT, img_name)
-    
-    # Save the image to the media folder
-    success = cv2.imwrite(img_path, frame)
-    if not success:
-        return HttpResponse("Failed to save image", status=500)
 
     # Encode the frame as a JPEG image
-    _, buffer = cv2.imencode('.jpg', frame)  
+    _, buffer = cv2.imencode('.jpg', selected)  
 
     # Convert the buffer to bytes
     frame_bytes = buffer.tobytes()
-
+    
     # Return the image as an HTTP response
     return HttpResponse(frame_bytes, content_type='image/jpeg')
 
 # View for rendering the page with the video feed
 def video_feed(request):
+       
+    #    return render(request, 'camara/layout.html', context)
     return StreamingHttpResponse(gen_frames(), content_type='multipart/x-mixed-replace; boundary=frame')
 
 #def trans_feed(request):
 #    return StreamingHttpResponse(gen_trans(), content_type='multipart/x-mixed-replace; boundary=frame')
+@csrf_exempt  # Usar csrf_exempt solo en desarrollo si es necesario. Para producción, asegúrate de incluir correctamente el token CSRF.
+def bruh(request):
+    if request.method == 'POST':
+       if request.method == 'POST' and request.FILES.get('image'):
+        # Get the uploaded image
+        image_file = request.FILES['image']
+        claseId = request.POST.get('claseId')
+        examenId = request.POST.get('examenId')
+
+        # Read the image content and send it to Google's Vision API
+        content = image_file.read()
+        vision_client = vision.ImageAnnotatorClient()
+        image = vision.Image(content=content)
+        response = vision_client.text_detection(image=image)
+        texts = response.text_annotations
+
+        # Extract the detected text
+        detected_text = texts[0].description if texts else "No text detected."
+        print(detected_text)
+        # Try to extract the name and matricula using regex
+        try:
+            name_match = re.search(r"/Nombre:\s*([A-Za-z\s]+)", detected_text).group(1)
+        except:
+            name_match = "Random"
+        try:
+            matricula_match = re.search(r'Matricula: (\d+)', detected_text).group(1)
+        except:
+            matricula_match = 0
+
+        print("Matricuka",matricula_match)
+        responses = re.findall(r'Respuesta: ([A-Z])', detected_text)
+
+        # Fetch exam and class from the database
+        examen = get_object_or_404(Examen, id=examenId)
+        clase = get_object_or_404(Clase, id=claseId)
+
+        print("La clase es ",claseId)
+        # Compare responses and calculate the score
+        respuestas = re.findall(r'([A-Z])', examen.preguntas_y_respuestas)
+        preguntas = len(respuestas)
+        calificacion = sum(100 / preguntas for alumno, maestro in zip(responses, respuestas) if alumno == maestro)
+
+        try:
+            # Find student by matricula and update their scores
+            matched_estudiante = Estudiante.objects.get(matricula=matricula_match, clase=clase)
+            existing_calificaciones = matched_estudiante.calificaciones or ''
+            updated_calificaciones = f"{existing_calificaciones}, {calificacion}" if existing_calificaciones else str(calificacion)
+            matched_estudiante.calificaciones = updated_calificaciones
+            matched_estudiante.save()
+
+        except Estudiante.DoesNotExist:
+            matched_estudiante = None
+            print('No matching Estudiante found')
+
+        # Return the detected text for debugging
+        url = reverse('examenes', kwargs={'claseId': claseId})
+
+        # Redirect to the constructed URL
+        return redirect(url)
 
 
 # View to render the HTML template that will show the video feed
-def camera(request):
+def camera(request,claseId,examenId):
 
     context = {
-            "active": False
+            "active": False,
+            'claseId':claseId,
+            'examenId':examenId
         }
     #if request.method == "POST":
     #    request.POST.get("btnTomarFoto")
@@ -325,3 +381,81 @@ def camera(request):
     #    return render(request, 'camara/layout.html', context)
 
     return render(request, 'camara/layout.html', context)
+
+def subir_imagen(request):
+    if request.method == 'POST' and request.FILES['image']:
+        image_file = request.FILES['image']
+        claseId=request.POST.get('claseId')
+        examenId=request.POST.get('examenId')
+        print(claseId)
+        print("adsdasd")
+         
+        content = image_file.read()
+        vision_client = vision.ImageAnnotatorClient()
+        image = vision.Image(content=content)
+        response = vision_client.text_detection(image=image)
+        texts = response.text_annotations
+        
+        if texts:
+            detected_text = texts[0].description
+            print(detected_text)
+        else:
+            detected_text = "No text detected."
+        # Extract information using regex
+        try:
+            name_match = re.search(r"Nombre:\s*([A-Za-z\s]+)", detected_text).group(1)
+        except:
+            name_match = "Random"
+
+        try:    
+             matricula_match = re.search(r'Matricula:\s*(\d+)', detected_text).group(1)
+        except:
+            matricula_match = 0
+        print("LA MATRICUKA",matricula_match)
+        
+        responses = re.findall(r'Respuesta: ([A-Z])', detected_text)
+        
+
+        examen = get_object_or_404(Examen, id=examenId)
+        clase = get_object_or_404(Clase, id=claseId)
+
+        respuestas = re.findall(r'([A-Z])', examen.preguntas_y_respuestas)
+        preguntas = len(respuestas)
+        calificacion = 0
+        
+        for alumno,maestro in zip(responses,respuestas):
+            print(alumno,maestro)
+            if alumno == maestro:
+                calificacion+=100/preguntas
+
+        print("La calificacion es",calificacion)
+        try:
+            matched_estudiante = Estudiante.objects.get(matricula=matricula_match, clase=clase)
+            print(f'Matched Estudiante: {matched_estudiante.nombre}')
+            existing_calificaciones = matched_estudiante.calificaciones
+            if existing_calificaciones:
+                updated_calificaciones = f"{existing_calificaciones}, {calificacion}"
+            else:
+                updated_calificaciones = str(calificacion)
+            matched_estudiante.calificaciones = updated_calificaciones
+            matched_estudiante.save()
+            print(f'Updated Calificaciones: {matched_estudiante.calificaciones}')
+        except Estudiante.DoesNotExist:
+            matched_estudiante = None
+            print('No matching Estudiante found')
+    
+        url = reverse('estudiantes', kwargs={'claseId': claseId})
+
+        # Redirect to the constructed URL
+        return redirect(url)
+        
+
+      
+
+    return render(request, 'upload_image.html')
+
+
+def listaex(request, clase_id):
+    clase = get_object_or_404(Clase, id=clase_id)
+    examenes = Examen.objects.filter(clase=clase)
+    return render(request, 'auth/lista_examenes.html', {'clase': clase, 'examenes': examenes})

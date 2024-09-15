@@ -93,3 +93,32 @@ body {
     margin-top: 10px;
     text-align: center;
 }
+
+.exam-list {
+    background-color: #fff;
+    padding: 1rem;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.exam-list h2 {
+    margin-top: 0;
+}
+
+.exams {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.exam-block {
+    background-color: #e9e9e9;
+    padding: 1rem;
+    border-radius: 5px;
+    width: calc(33.333% - 1rem);
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.exam-block h3 {
+    margin-top: 0;
+}

@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tomar Foto</title>
-    
     <style>
         body {
             display: flex;
@@ -51,37 +50,146 @@
             border: 2px solid #000;
             border-radius: 8px;
         }
+
+        /* Popup styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: -200px;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 640px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .btn-save {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+        }
+
+        .btn-discard {
+            background-color: #f44336;
+            color: white;
+            border: none;
+        }
     </style>
 </head>
 <body>
     <div>
-        <!-- El video que está en el código original -->
         <img id="original" src="{% url 'live_feed' %}" width="640" height="480"/>
+        <img id="invisible" hidden="hidden" width="1" height="1"/>
     </div>
 
-    <div>
-        <!-- El video que está en el código original -->
-        <img id="image_display" width="640" height="480"/>
+    <button onclick="fetchNewImage()" id="btnTomarFoto">Tomar Foto</button>
+
+    <form id="uploadForm" action="{% url 'subir_imagen' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="image" accept="image/*" required>
+        <input type="hidden" name="claseId" value={{claseId}}>
+        <input type="hidden" name="examenId" value={{examenId}}>
+        <button type="submit">Upload Image</button>
+    </form>
+    
+    <!-- Modal for image preview -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Vista Previa de la Imagen</h2>
+                <span id="closeModal" style="cursor:pointer;">&times;</span>
+            </div>
+            <div>
+                <img id="image_display" width="640" height="480"/>
+            </div>
+            <div class="modal-footer">
+                <button id="saveImage" name="saveImage" value="ss" class="btn btn-save">Guardar</button>
+                <button id="discardImage" class="btn btn-discard">Descartar</button>
+            </div>
+        </div>
     </div>
-
-    <!-- Añadir el botón en el centro debajo del video -->
-    <button id="btnTomarFoto">Tomar Foto</button>
-
-    <!-- Canvas estará oculto por CSS pero se mostrará con JavaScript cuando sea necesario -->
-    <canvas id="canvas" width="640" height="480"></canvas>
 
     <script>
-        document.getElementById('btnTomarFoto').addEventListener('click', function() {
-        var image = document.getElementById('image_display');
-        // Change the source of the image
-        image.src = "{% url 'screenshot' %}";
+        // Definir la función fetchNewImage
+        function fetchNewImage() {
+            fetch("{% url 'screenshot' %}")
+                .then(response => response.blob())
+                .then(blob => {
+                    const url = URL.createObjectURL(blob);
+                    document.getElementById('image_display').src = url;
+                })
+                .catch(error => console.error('Error fetching image:', error));
+            document.getElementById('myModal').style.display = "block";
+        }
 
-        // Reload the page after 2 seconds
-        setTimeout(() => {
-            window.location.reload();
-        }, 2000);
-    });s
+        // Cerrar modal al hacer clic en el botón cerrar
+        document.getElementById('closeModal').addEventListener('click', function() {
+            document.getElementById('myModal').style.display = "none";
+        });
 
+        // Descartar imagen y cerrar el modal
+        document.getElementById('discardImage').addEventListener('click', function() {
+            document.getElementById('myModal').style.display = "none";
+        });
+
+        // Guardar imagen cuando se hace clic en el botón "Guardar"
+        document.getElementById('saveImage').addEventListener('click', function() {
+            // Obtén la imagen de la etiqueta <img> donde se está mostrando
+            const imageElement = document.getElementById('image_display');
+            
+            // Convierte la imagen a un blob
+            fetch(imageElement.src)
+                .then(response => response.blob())
+                .then(blob => {
+                    const formData = new FormData();
+                    formData.append('image', blob, 'screenshot.png');
+                    formData.append('claseId', '{{ claseId }}');  // Replace with actual claseId  // Reemplazar con claseId real
+                    formData.append('examenId','{{ examenId }}'); // Reemplazar con examenId real
+
+                    // Enviar la imagen usando fetch
+                    fetch("{% url 'save' %}", {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}'  // Incluir CSRF token para Django
+                        },
+                        body: formData
+                    })
+                    .then(response => response.text())
+                    .then(data => console.log('Image saved successfully:', data))
+                    .catch(error => console.error('Error saving image:', error));
+                });
+            
+            document.getElementById('myModal').style.display = "none";
+        });
     </script>
+    
 </body>
 </html>
