@@ -105,9 +105,47 @@ def gen_frames():
         else:
             # Encode frame as JPEG
             frame = cv2.resize(frame, (640, 480))
-            frame = cv2.GaussianBlur(frame,(5,5),0)
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            _,frame = cv2.threshold(frame,65,255,cv2.THRESH_BINARY)
+            frame2 = cv2.GaussianBlur(frame,(5,5),0)
+            frame2 = cv2.cvtColor(frame2, cv2.COLOR_BGR2GRAY)
+            frame2 = cv2.adaptiveThreshold(frame2,255,cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY,11,2)
+            #frame2 = cv2.Canny(frame2,60,170)
+            
+            shapes, hiera = cv2.findContours(frame2, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            #logger.info(shapes)
+            maxAre = 0
+            index = 0
+            if len(hiera[0]):
+                full = len(hiera[0])
+                for x in range(full):
+                    #pass
+                    if hiera[0][x][0] == -1:
+                        continue
+                    #logger.warning(hiera[0][x])
+                    area = cv2.contourArea(shapes[x])
+                    if maxAre < area:
+                        maxAre = area
+                        index = x
+                
+            
+            epsilon = 0.01*cv2.arcLength(shapes[index],True)
+            approx = cv2.approxPolyDP(shapes[index],epsilon,True)
+            
+            #logger.warning("Aprox: ")    
+            #logger.warning(approx)
+            #logger.warning("-----") 
+            
+            if len(approx):
+                full = len(approx)
+                last = full - 1
+                for x in range(full):
+                    
+                    cv2.line(frame, approx[last][0], approx[x][0], (0, 0, 255), 3)
+                    last = x
+            
+            #cv2.drawContours(frame, approx, -1, (0,0,255), 3)
+            
+            
+            cv2.drawContours(frame, shapes, index, (0,255,0), 3)
         
         _, buffer = cv2.imencode('.jpg', frame)
         
