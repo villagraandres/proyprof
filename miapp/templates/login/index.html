@@ -23,18 +23,16 @@
 
                 <input type="submit" value="Login">
             </form>
-            {% if messages %}
-                <ul>
-                    {% for message in messages %}
-                        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-                    {% endfor %}
-                </ul>
+            {% if error %}
+                <div class="error-message">
+                    <p>{{ error }}</p>
+                </div> 
             {% endif %}
             <div class="forgot-password">
                 <a href="#">¿Olvidaste tu contraseña?</a>
             </div>
             <div class="register">
-                <a href="{% url 'crear' %}">¿No tienes cuenta?</a>  <p> <a href="{% url 'crear' %}">Regístrate aquí</a></p>
+                <a href="{% url 'crear' %}">¿No tienes cuenta?</a> 
             </div>
         </div>
 

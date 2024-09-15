@@ -31,7 +31,6 @@ header {
     height: calc(100vh - 60px);
 }
 
-
 /* Class section */
 .class-section {
     flex: 1;
@@ -64,4 +63,23 @@ header {
 .class-box:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Add Class Button Styles */
+.add-class-button {
+    display: inline-block;
+    margin-bottom: 20px;
+    padding: 10px 20px;
+    font-size: 16px;
+    color: #fff;
+    background-color: #5cb85c; /* Green color to match the header */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+}
+
+.add-class-button:hover {
+    background-color: #4cae4c; /* Darker green for hover effect */
 }

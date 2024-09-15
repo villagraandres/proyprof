@@ -19,28 +19,32 @@ def index(request):
         try:
             user = User.objects.get(username=email)
         except User.DoesNotExist:
-            logger.warning(f"Login attempt with non-existent user: {email}")
-            return render(request, 'login/index.html', {'error': 'User does not exist'})
+           
+            return render(request, 'login/index.html', {'error': 'El usuario no existe'})
 
         if user.check_password(password):
-            if user.is_active:  # Use is_active instead of auth
+            if user.is_active:  
                 login(request, user)
                 logger.info(f"User {email} logged in successfully.")
                 return HttpResponseRedirect(reverse("dash"))
-            else:
-                logger.warning(f"Login attempt with inactive user: {email}")
-                return render(request, 'login/index.html', {'error': 'Please confirm your account'})
+            
         else:
-            logger.warning(f"Wrong password attempt for user: {email}")
-            return render(request, 'login/index.html', {'error': 'Wrong password'})
+          
+            return render(request, 'login/index.html', {'error': 'Contrasena incorrecta'})
 
     return render(request, 'login/index.html')
+
 
 def crear(request):
     if request.method == 'POST':
         name = request.POST.get('name')
         email = request.POST.get('email')
         password = request.POST.get('password')
+
+       
+        if not name or not email or not password:
+            logger.warning("Attempt to create user with empty fields.")
+            return render(request, 'login/register.html', {'error': 'Todos los campos son requeridos'})
 
         try:
             user = User(username=email, first_name=name, email=email)
@@ -50,13 +54,12 @@ def crear(request):
             return redirect('login')
         except IntegrityError as e:
             logger.error(f"IntegrityError: {e}")
-            return render(request, 'login/register.html', {'error': 'Email ya existe'})
+            return render(request, 'login/register.html', {'error': 'Email already exists.'})
         except Exception as e:
             logger.error(f"Unexpected error: {e}")
-            return render(request, 'login/register.html', {'error': 'Unexpected error occurred'})
+            return render(request, 'login/register.html', {'error': 'Unexpected error occurred.'})
 
     return render(request, 'login/register.html')
-
 
 
 def dash(request):

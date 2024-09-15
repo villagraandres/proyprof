@@ -82,3 +82,14 @@ body {
     max-width: 500px;
     margin: 0 auto;
 }
+
+
+.error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    padding: 10px;
+    border-radius: 4px;
+    margin-top: 10px;
+    text-align: center;
+}
