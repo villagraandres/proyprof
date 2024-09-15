@@ -20,12 +20,17 @@
                         <tr>
                             <th>Nombre</th>
                             <th>Matrícula</th>
-                            <th>Última Calificación</th>
-                            <th>Ver todas las calificaciones</th>
+                           
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Filas de estudiantes se agregarán aquí -->
+                        {% for estudiante in estudiantes %}
+                        <tr>
+                            <td>{{ estudiante.nombre }}</td>
+                            <td>{{ estudiante.matricula }}</td>
+                            
+                        </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </section>

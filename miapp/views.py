@@ -193,7 +193,8 @@ def subir_excel(request):
 
 def estudiantes(request,claseId):
     clase= get_object_or_404(Clase, id=claseId)
-    return render(request,"auth/estudiantes.html",{"claseId":claseId})
+    estudiantes = Estudiante.objects.filter(clase=clase)
+    return render(request,"auth/estudiantes.html",{"claseId":claseId,"estudiantes":estudiantes})
 
 
 
