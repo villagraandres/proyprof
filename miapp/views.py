@@ -72,7 +72,10 @@ def crear(request):
 
             Profile.objects.create(user=user)
             logger.info(f"User {email} created successfully.")
-            return redirect('login')
+            login(request, user)
+            logger.info(f"User {email} logged in successfully.")
+            return HttpResponseRedirect(reverse("dash"))
+           
         except IntegrityError as e:
             logger.error(f"IntegrityError: {e}")
             return render(request, 'login/register.html', {'error': 'Email already exists.'})
@@ -201,7 +204,11 @@ def subir_excel(request):
                 clase=clase
             )
         
-        return redirect('some_view')  # Redirect to a view after processing
+        url = reverse('clase', kwargs={'claseId': claseId})
+
+        # Redirect to the constructed URL
+        return redirect(url)
+       
     return render(request, 'your_template.html')
 
 def estudiantes(request,claseId):
