@@ -61,3 +61,6 @@ def crear(request):
 
 def dash(request):
     return render(request,"auth/dash.html")
+
+def clase(request):
+    return render(request,"auth/clase.html")
