@@ -13,7 +13,12 @@ from .models import Clase, Profile,Examen,Estudiante # Import Profile
 from google.cloud import vision
 import io
 import pandas as pd
-
+import cv2
+import numpy as np
+import time
+import cv2
+from django.http import StreamingHttpResponse
+from django.http import HttpResponseRedirect
 logger = logging.getLogger(__name__)
 @csrf_exempt
 def index(request):
@@ -199,4 +204,88 @@ def estudiantes(request,claseId):
 
 
 
+framework = []
+def gen_frames():  
+    cap = cv2.VideoCapture(0)  # Capture video from the first camera (0)
+    lastSux = []
+    while True:
+        success, frame = cap.read()  # Read a frame
+        if not success:
+            frame = np.zeros((640, 480, 3), dtype=np.uint8)  # Black image
+            cv2.putText(frame, 'No Feed', (30, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+            logger.warning("No image feed, try restarting camera")
+            
+        else:
+            # Encode frame as JPEG
+            frame = cv2.resize(frame, (640, 480))
+            frame2 = cv2.GaussianBlur(frame,(5,5),0)
+            frame2 = cv2.cvtColor(frame2, cv2.COLOR_BGR2GRAY)
+            #cv2.equalizeHist(frame2, frame2)
+            frame2 = cv2.adaptiveThreshold(frame2,255,cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY,11,2)
+            #frame = cv2.Canny(frame2,60,180)
+            
+            shapes, hiera = cv2.findContours(frame2, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            #logger.info(shapes)
+            maxAre = 0
+            index = 0
+            
+            if not len(hiera):
+                continue
+            if len(hiera[0]):
+                full = len(hiera[0])
+                for x in range(full):
+                    #pass
+                    if hiera[0][x][0] == -1:
+                        continue
+                    #logger.warning(hiera[0][x])
+                    area = cv2.contourArea(shapes[x])
+                    if maxAre < area:
+                        maxAre = area
+                        index = x
+                        
+            epsilon = 0.05*cv2.arcLength(shapes[index],True)
+            approx = cv2.approxPolyDP(shapes[index],epsilon,True)
+            
+            #cv2.drawContours(frame, shapes, index, (0,255,0), 3)
+            
+            if len(approx) == 4:
+                lastSux = approx.copy()
+            
+            if len(lastSux):
+                last = 3
+                for x in range(4):
+                    #cv2.circle(frame,approx[x][0], 10, (0,0,x*60), -1)
+                    cv2.line(frame, lastSux[last][0], lastSux[x][0], (0, 0, 255), 3)
+                    last = x
+                
+                pts1 = np.float32([[lastSux[0][0]], [lastSux[1][0]], [lastSux[2][0]], [lastSux[3][0]]])
+                    
+                pts2 = np.float32([[0, 0], [0, 640], [480, 640], [480, 0]])
+                M = cv2.getPerspectiveTransform(pts1, pts2)
+                framework = cv2.warpPerspective(frame2, M, (480, 640))
+            
+            #cv2.drawContours(frame, approx, -1, (0,0,255), 3)
+        
+        _, buffer = cv2.imencode('.jpg', frame)
+        
+        frame = buffer.tobytes()
+        logger.warning("Frame ending")
+        # Yield frame in byte format
+        yield (b'--frame\r\n'
+                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+        
+def screnie(request):
+    frame = framework
+    return HttpResponse(frame.tobytes(), content_type='image/jpeg')
 
+# View for rendering the page with the video feed
+def video_feed(request):
+    return StreamingHttpResponse(gen_frames(), content_type='multipart/x-mixed-replace; boundary=frame')
+
+#def trans_feed(request):
+#    return StreamingHttpResponse(gen_trans(), content_type='multipart/x-mixed-replace; boundary=frame')
+
+
+# View to render the HTML template that will show the video feed
+def camera(request):
+    return render(request, 'camara/layout.html')
