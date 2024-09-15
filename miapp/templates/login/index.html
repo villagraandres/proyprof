@@ -14,7 +14,7 @@
         <div class="login-box">
             <h2>Youka Teachers</h2>
             <form method="POST">
-
+                {% csrf_token %}
                 <label for="username">Correo</label>
                 <input type="text" id="username" name="username" placeholder="Correo" required>
 
@@ -23,11 +23,18 @@
 
                 <input type="submit" value="Login">
             </form>
+            {% if messages %}
+                <ul>
+                    {% for message in messages %}
+                        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
             <div class="forgot-password">
                 <a href="#">¿Olvidaste tu contraseña?</a>
             </div>
             <div class="register">
-                <a href="{% url "crear" %}" >¿No tienes cuenta?</a> 
+                <a href="{% url 'crear' %}">¿No tienes cuenta?</a>  <p> <a href="{% url 'crear' %}">Regístrate aquí</a></p>
             </div>
         </div>
 
