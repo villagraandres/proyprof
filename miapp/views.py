@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse  # Import JsonResponse
 from django.db import IntegrityError
 from django.contrib.auth.models import User
 import logging
@@ -8,7 +8,8 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
-
+import json
+from .models import Clase, Profile  # Import Profile
 
 logger = logging.getLogger(__name__)
 @csrf_exempt
@@ -50,6 +51,8 @@ def crear(request):
             user = User(username=email, first_name=name, email=email)
             user.set_password(password)
             user.save()
+
+            Profile.objects.create(user=user)
             logger.info(f"User {email} created successfully.")
             return redirect('login')
         except IntegrityError as e:
@@ -61,26 +64,47 @@ def crear(request):
 
     return render(request, 'login/register.html')
 
-
 @csrf_exempt
 def crearClase(request):
     if request.method == "POST":
         try:
             data = json.loads(request.body)
             nombre = data.get('name')
-
-            clase = Clase(nombre=nombre)
+            user_id = data.get('user_id')
+            print(nombre)
+            print(user_id)
+            print("daksjdaskjdalskdjalskdjaslkdj______")
+            
+            user = User.objects.get(id=user_id)
+            print("---")
+            print(user)
+             
+            profile = Profile.objects.get(user=user)
+            
+            print("---")
+            print(profile)
+            clase = Clase(nombre=nombre, profile=profile)
             clase.save()
 
-            # Return a JSON response
+            
             return JsonResponse({'message': 'Class created successfully', 'class_id': clase.id})
+        except User.DoesNotExist:
+            return JsonResponse({'error': 'Usuario no existe'}, status=400)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 def dash(request):
-    return render(request,"auth/dash.html")
+    user_id = request.user.id
+    try:
+        profile = Profile.objects.get(user_id=user_id)
+        clases = profile.clases.all()  
+
+        print(clases)
+        return render(request, "auth/dash.html", {'user_id': user_id, 'clases': clases})
+    except Profile.DoesNotExist:
+        return render(request, "auth/dash.html", {'user_id': user_id, 'clases': []})
 
 def clase(request):
     return render(request,"auth/clase.html")

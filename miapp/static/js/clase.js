@@ -20,12 +20,14 @@ document.getElementById('crearClase').addEventListener('click', function() {
         method: 'POST',
         body: JSON.stringify({
             name: className,
+            user_id: usuarioId
         })
     })
     .then(response => {
         if (!response.ok) {
+            console.log(response)
             throw new Error('Network response was not ok');
-        }
+        }   
         return response.json();
     })
     .then(data => {

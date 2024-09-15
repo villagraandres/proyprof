@@ -22,15 +22,18 @@
             <h2>Clases</h2>
             <button class="add-class-button" onclick="openModal()">Añadir a Clase</button>
             <div class="class-grid">
-                <a href="{% url 'clase' %}" class="class-box">Clase 1</a>
-                <a href="{% url 'clase' %}" class="class-box">Clase 2</a>
-                <a href="{% url 'clase' %}" class="class-box">Clase 3</a>
-                <a href="{% url 'clase' %}" class="class-box">Clase 4</a>
-                <a href="{% url 'clase' %}" class="class-box">Clase 5</a>
-                <a href="{% url 'clase' %}" class="class-box">Clase 6</a>
+                {% if clases %}
+                    {% for clase in clases %}
+                        <a href="{% url 'clase' %}" class="class-box">Clase {{ clase.nombre }}</a>
+                    {% endfor %}
+                {% else %}
+                    <p>No classes found.</p>
+                {% endif %}
             </div>
         </section>
     </div>
+    
+   
 
     <footer>
         <p>&copy; 2024 Youka Teachers. All Rights Reserved.</p>
@@ -49,10 +52,11 @@
         </div>
     </div>
 
-
+    
     <script>
         const crearClaseUrl = "{% url 'crearClase' %}";
         const csrfToken = "{{ csrf_token }}";
+        const usuarioId = "{{ user_id }}";
     </script>
 
     <script src="{% static 'js/clase.js' %}"></script>
