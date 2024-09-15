@@ -325,3 +325,28 @@ def camera(request):
     #    return render(request, 'camara/layout.html', context)
 
     return render(request, 'camara/layout.html', context)
+
+
+
+
+
+def save_image(request):
+    global framework
+    frame = framework
+
+    # Asegurar que el directorio de medios existe
+    if not os.path.exists(settings.MEDIA_ROOT):
+        os.makedirs(settings.MEDIA_ROOT)
+
+    # Definir la ruta del archivo
+    img_name = f"screenshot_{datetime.date.today()}.png"
+    img_path = os.path.join(settings.MEDIA_ROOT, img_name)
+
+    # Guardar la imagen en el directorio de medios
+    success = cv2.imwrite(img_path, frame)
+    if success:
+        messages.success(request, 'Imagen guardada correctamente.')
+    else:
+        messages.error(request, 'Error al guardar la imagen.')
+
+    return redirect('camera')  # Redirigir de nuevo a la cámara o donde prefieras
