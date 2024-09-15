@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tomar Foto</title>
-    
     <style>
         body {
             display: flex;
@@ -51,37 +50,113 @@
             border: 2px solid #000;
             border-radius: 8px;
         }
+
+        /* Popup styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: -200px;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 640px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .btn-save {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+        }
+
+        .btn-discard {
+            background-color: #f44336;
+            color: white;
+            border: none;
+        }
     </style>
 </head>
 <body>
     <div>
-        <!-- El video que está en el código original -->
         <img id="original" src="{% url 'live_feed' %}" width="640" height="480"/>
     </div>
 
-    <div>
-        <!-- El video que está en el código original -->
-        <img id="image_display" width="640" height="480"/>
-    </div>
-
-    <!-- Añadir el botón en el centro debajo del video -->
     <button id="btnTomarFoto">Tomar Foto</button>
 
-    <!-- Canvas estará oculto por CSS pero se mostrará con JavaScript cuando sea necesario -->
-    <canvas id="canvas" width="640" height="480"></canvas>
+    <!-- Modal for image preview -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Vista Previa de la Imagen</h2>
+                <span id="closeModal" style="cursor:pointer;">&times;</span>
+            </div>
+            <div>
+                <img id="image_preview" width="640" height="480"/>
+            </div>
+            <div class="modal-footer">
+                <button id="saveImage" class="btn btn-save">Guardar</button>
+                <button id="discardImage" class="btn btn-discard">Descartar</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         document.getElementById('btnTomarFoto').addEventListener('click', function() {
-        var image = document.getElementById('image_display');
-        // Change the source of the image
-        image.src = "{% url 'screenshot' %}";
+            var image = document.getElementById('image_preview');
+            image.src = "{% url 'screenshot' %}";
 
-        // Reload the page after 2 seconds
-        setTimeout(() => {
-            window.location.reload();
-        }, 2000);
-    });s
+            // Mostrar el popup
+            document.getElementById('myModal').style.display = "block";
+        });
 
+        document.getElementById('closeModal').addEventListener('click', function() {
+            document.getElementById('myModal').style.display = "none";
+        });
+
+        document.getElementById('discardImage').addEventListener('click', function() {
+            // Cerrar el modal
+            document.getElementById('myModal').style.display = "none";
+        });
+
+        document.getElementById('saveImage').addEventListener('click', function() {
+            // Redirigir a la vista de guardar
+            window.location.href = "{% url 'save_image' %}";
+        });
+
+        // Cerrar el modal al hacer clic fuera de la ventana modal
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('myModal')) {
+                document.getElementById('myModal').style.display = "none";
+            }
+        }
     </script>
 </body>
 </html>
