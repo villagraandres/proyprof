@@ -107,13 +107,17 @@ def gen_frames():
             frame = cv2.resize(frame, (640, 480))
             frame2 = cv2.GaussianBlur(frame,(5,5),0)
             frame2 = cv2.cvtColor(frame2, cv2.COLOR_BGR2GRAY)
+            #cv2.equalizeHist(frame2, frame2)
             frame2 = cv2.adaptiveThreshold(frame2,255,cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY,11,2)
-            #frame2 = cv2.Canny(frame2,60,170)
+            #frame = cv2.Canny(frame2,60,180)
             
             shapes, hiera = cv2.findContours(frame2, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             #logger.info(shapes)
             maxAre = 0
             index = 0
+            
+            if not len(hiera):
+                continue
             if len(hiera[0]):
                 full = len(hiera[0])
                 for x in range(full):
@@ -125,27 +129,29 @@ def gen_frames():
                     if maxAre < area:
                         maxAre = area
                         index = x
-                
-            
-            epsilon = 0.01*cv2.arcLength(shapes[index],True)
+                        
+            epsilon = 0.05*cv2.arcLength(shapes[index],True)
             approx = cv2.approxPolyDP(shapes[index],epsilon,True)
             
-            #logger.warning("Aprox: ")    
-            #logger.warning(approx)
-            #logger.warning("-----") 
+            cv2.drawContours(frame, shapes, index, (0,255,0), 3)
             
             if len(approx):
                 full = len(approx)
                 last = full - 1
+                
                 for x in range(full):
-                    
                     cv2.line(frame, approx[last][0], approx[x][0], (0, 0, 255), 3)
                     last = x
+                    
+            if len(approx) == 4:
+                pts2 = np.float32([[0, 0], [480, 0], [0, 640], [480, 640]])
+                M = cv2.getPerspectiveTransform(approx, pts2)
+                frame = cv2.warpPerspective()
             
             #cv2.drawContours(frame, approx, -1, (0,0,255), 3)
             
             
-            cv2.drawContours(frame, shapes, index, (0,255,0), 3)
+            
         
         _, buffer = cv2.imencode('.jpg', frame)
         
