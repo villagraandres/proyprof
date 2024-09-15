@@ -15,6 +15,7 @@ import time
 
 
 logger = logging.getLogger(__name__)
+framework = []
 @csrf_exempt
 def index(request):
     if request.method == 'POST':
@@ -137,11 +138,7 @@ def gen_frames():
             
             if len(approx) == 4:
                 lastSux = approx.copy()
-                
-                
-                
-                
-                
+            
             if len(lastSux):
                 last = 3
                 for x in range(4):
@@ -153,12 +150,9 @@ def gen_frames():
                     
                 pts2 = np.float32([[0, 0], [0, 640], [480, 640], [480, 0]])
                 M = cv2.getPerspectiveTransform(pts1, pts2)
-                frame2 = cv2.warpPerspective(frame, M, (480, 640))
+                framework = cv2.warpPerspective(frame2, M, (480, 640))
             
             #cv2.drawContours(frame, approx, -1, (0,0,255), 3)
-            
-            
-            
         
         _, buffer = cv2.imencode('.jpg', frame)
         
@@ -167,6 +161,10 @@ def gen_frames():
         # Yield frame in byte format
         yield (b'--frame\r\n'
                 b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+        
+def generate_image_directly(request):
+    frame = framework
+    return HttpResponse(frame.tobytes(), content_type='image/jpeg')
 
 # View for rendering the page with the video feed
 def video_feed(request):
