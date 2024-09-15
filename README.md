@@ -75,4 +75,5 @@ Si deseas contribuir a este proyecto, siéntete libre de hacer un fork del repos
 
 ## Licencia
 
-Este proyecto está bajo la licencia MIT.
+
+![Captura de Pantalla](media/img2.png)
