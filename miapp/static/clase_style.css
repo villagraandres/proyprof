@@ -1,0 +1,101 @@
+/* General styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    color: #333;
+}
+
+/* Header */
+header {
+    background: linear-gradient(to right, #5cb85c, #5cb85c);
+    padding: 20px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.titulo a {
+	text-decoration: none;
+	color: white;
+}
+
+.header-container h1 {
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.user-section {
+    font-size: 20px;
+}
+
+/* Main content */
+.main-container {
+    padding: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: calc(100vh - 160px);
+}
+
+/* Class options */
+.class-options {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    max-width: 1200px;
+}
+
+.option-box {
+    background-color: white;
+    border-radius: 20px;
+    padding: 40px;
+    width: 250px;
+    height: 250px;
+    text-align: center;
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.option-box:hover {
+    transform: translateY(-10px);
+    box-shadow: 0px 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.option-box h3 {
+    font-size: 22px;
+    margin-top: 20px;
+    color: #333;
+}
+
+.icon {
+    font-size: 60px;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #f4f4f4;
+    font-size: 14px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    color: #555;
+    box-shadow: 0px -4px 10px rgba(0, 0, 0, 0.1);
+}
+
+footer p {
+    margin: 0;
+}
