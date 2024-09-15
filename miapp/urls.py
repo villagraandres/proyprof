@@ -14,4 +14,5 @@ urlpatterns = [
     path('camera',views.camera,name='camera'),
     path('live_feed',views.video_feed,name='live_feed'),
     path('screenshot',views.screnie,name='screenshot'),
+    path('save_image', views.save_image, name='save_image'),
 ]
