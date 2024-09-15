@@ -24,3 +24,12 @@ class Examen(models.Model):
     num_preguntas = models.IntegerField()
     preguntas_y_respuestas = models.TextField()  
     maestro=models.ForeignKey(Profile,related_name='examenes',on_delete=models.CASCADE)
+    clase = models.ForeignKey(Clase, related_name="clase", on_delete=models.CASCADE, null=True, blank=True)
+
+class Estudiante(models.Model):
+    nombre=models.CharField(max_length=100)
+    matricula=models.IntegerField()
+    calificaciones=models.TextField()
+    clase=models.ForeignKey(Clase,related_name="clases",on_delete=models.CASCADE)
+
+

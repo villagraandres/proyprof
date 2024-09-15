@@ -9,13 +9,15 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 import json
-from .models import Clase, Profile,Examen # Import Profile
+from .models import Clase, Profile,Examen,Estudiante # Import Profile
 from google.cloud import vision
 import io
+import pandas as pd
 
 logger = logging.getLogger(__name__)
 @csrf_exempt
 def index(request):
+    
     #imagen()
     if request.method == 'POST':
         email = request.POST.get('username')
@@ -128,30 +130,34 @@ def imagen():
 
 
 
-def examenes(request, claseId):
-    clase = get_object_or_404(Clase, id=claseId)
-    return render(request, 'auth/examenes.html', {'clase': clase})
+def examenes(request,claseId):
+    return render(request, 'auth/examenes.html',{'claseId':claseId})
 
 
 def clase(request,claseId):
     clase= get_object_or_404(Clase, id=claseId)
     return render(request,"auth/clase.html", {'clase': clase})
 
-def crearExamen(request):
+def crearExamen(request,claseId):
     if request.method == 'POST':
         # Obtener los datos del formulario
         nombre = request.POST.get('examTitle')
         num_preguntas = int(request.POST.get('numQuestions'))
         pags = request.POST.get('pags')
+        perfil = get_object_or_404(Profile, user=request.user)
 
+        clase = get_object_or_404(Clase, id=claseId)
         # Guardar el examen en la base de datos
         examen = Examen.objects.create(
             nombre=nombre,
             pags=pags,
             num_preguntas=num_preguntas,
-            preguntas_y_respuestas=""  
+            preguntas_y_respuestas="",
+            maestro=perfil,
+            clase=clase
         )
         
+
         respuestas_correctas = {}
         for i in range(1, num_preguntas + 1):
             respuesta = request.POST.get(f'correctAnswer{i}')
@@ -166,31 +172,29 @@ def crearExamen(request):
     return render(request, 'auth/crearExamen.html')
 
 
+
+def subir_excel(request):
+    if request.method == 'POST' and request.FILES.get('excel_file'):
+        excel_file = request.FILES['excel_file']
+        claseId=request.POST.get("claseId")
+        df = pd.read_excel(excel_file)
+        
+        clase = get_object_or_404(Clase, id=claseId)
+
+        for index, row in df.iterrows():
+            Estudiante.objects.create(
+                nombre=row['Nombre'],
+                matricula=row['Matricula'],
+                clase=clase
+            )
+        
+        return redirect('some_view')  # Redirect to a view after processing
+    return render(request, 'your_template.html')
+
 def estudiantes(request,claseId):
     clase= get_object_or_404(Clase, id=claseId)
-    return render(request,"auth/estudiantes.html")
+    return render(request,"auth/estudiantes.html",{"claseId":claseId})
 
-
-
-def examenes(request):
-    if request.method == 'POST':
-        titulo_examen = request.POST.get('examTitle')
-        num_preguntas = int(request.POST.get('numQuestions'))
-        preguntas = []
-        
-        for i in range(1, num_preguntas + 1):
-            pregunta = request.POST.get(f'question{i}')
-            respuesta_correcta = request.POST.get(f'correctAnswer{i}')
-            preguntas.append({
-                'pregunta': pregunta,
-                'respuesta_correcta': respuesta_correcta
-            })
-        
-        # Aquí puedes hacer lo que necesites con los datos (guardar en base de datos, generar un archivo, etc.)
-        
-        return HttpResponse(f"Examen '{titulo_examen}' creado con {num_preguntas} preguntas.")
-    
-    return render(request, 'crear_examen.html')
 
 
 

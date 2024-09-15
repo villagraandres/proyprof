@@ -9,5 +9,6 @@ urlpatterns = [
     path('auth/crearClase',views.crearClase,name="crearClase"),
     path('auth/estudiantes/<int:claseId>/',views.estudiantes,name="estudiantes"),
     path('auth/examenes/<int:claseId>/',views.examenes,name="examenes"),
-    path('auth/crearExamen',views.crearExamen,name="crearExamen"),
+    path('auth/crearExamen/<int:claseId>/',views.crearExamen,name="crearExamen"),
+    path('auth/subir_excel',views.subir_excel,name="subir_excel"),
 ]

@@ -95,3 +95,33 @@ footer {
 footer p {
     margin: 0;
 }
+
+
+/* students.css */
+
+/* General styles for the button */
+button.add {
+    background-color: #4CAF50; /* Green background */
+    border: none; /* Remove border */
+    color: white; /* White text */
+    padding: 10px 20px; /* Some padding */
+    text-align: center; /* Center the text */
+    text-decoration: none; /* Remove underline */
+    display: inline-block; /* Inline-block for alignment */
+    font-size: 16px; /* Font size */
+    margin: 4px 2px; /* Margin around the button */
+    cursor: pointer; /* Pointer cursor on hover */
+    border-radius: 5px; /* Rounded corners */
+    transition: background-color 0.3s; /* Smooth background color transition */
+}
+
+/* Hover effect */
+button.add:hover {
+    background-color: #45a049; /* Darker green on hover */
+}
+
+/* File input styling */
+input[type="file"] {
+    display: inline-block; /* Align with button */
+    margin-right: 10px; /* Space between file input and button */
+}
