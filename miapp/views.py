@@ -133,3 +133,29 @@ def clase(request,claseId):
 def estudiantes(request,claseId):
     clase= get_object_or_404(Clase, id=claseId)
     return render(request,"auth/estudiantes.html")
+
+
+
+def examenes(request):
+    if request.method == 'POST':
+        titulo_examen = request.POST.get('examTitle')
+        num_preguntas = int(request.POST.get('numQuestions'))
+        preguntas = []
+        
+        for i in range(1, num_preguntas + 1):
+            pregunta = request.POST.get(f'question{i}')
+            respuesta_correcta = request.POST.get(f'correctAnswer{i}')
+            preguntas.append({
+                'pregunta': pregunta,
+                'respuesta_correcta': respuesta_correcta
+            })
+        
+        # Aquí puedes hacer lo que necesites con los datos (guardar en base de datos, generar un archivo, etc.)
+        
+        return HttpResponse(f"Examen '{titulo_examen}' creado con {num_preguntas} preguntas.")
+    
+    return render(request, 'crear_examen.html')
+
+
+
+
