@@ -140,13 +140,19 @@ def gen_frames():
                 last = full - 1
                 
                 for x in range(full):
+                    #cv2.circle(frame,approx[x][0], 10, (0,0,x*60), -1)
                     cv2.line(frame, approx[last][0], approx[x][0], (0, 0, 255), 3)
                     last = x
+            try:
+                if len(approx) == 4:
+                    pts1 = np.float32([[approx[0][0]], [approx[1][0]], [approx[2][0]], [approx[3][0]]])
                     
-            if len(approx) == 4:
-                pts2 = np.float32([[0, 0], [480, 0], [0, 640], [480, 640]])
-                M = cv2.getPerspectiveTransform(approx, pts2)
-                frame = cv2.warpPerspective()
+                    pts2 = np.float32([[0, 0], [0, 640], [480, 640], [480, 0]])
+                    M = cv2.getPerspectiveTransform(pts1, pts2)
+                    frame = cv2.warpPerspective(frame, M, (480, 640))
+                    
+            except cv2.error as e:
+                logger.warning(f"Transform error {e}")
             
             #cv2.drawContours(frame, approx, -1, (0,0,255), 3)
             
