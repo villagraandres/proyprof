@@ -62,6 +62,23 @@ def crear(request):
     return render(request, 'login/register.html')
 
 
+@csrf_exempt
+def crearClase(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            nombre = data.get('name')
+
+            clase = Clase(nombre=nombre)
+            clase.save()
+
+            # Return a JSON response
+            return JsonResponse({'message': 'Class created successfully', 'class_id': clase.id})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=400)
+
 def dash(request):
     return render(request,"auth/dash.html")
 
