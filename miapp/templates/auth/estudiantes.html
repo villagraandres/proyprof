@@ -1,0 +1,53 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Estudiantes</title>
+    <link rel="stylesheet" href="{% static 'students.css' %}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Gestión de Estudiantes</h1>
+        </header>
+        <main>
+            <section class="student-list">
+                <h2>Lista de Estudiantes</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Matrícula</th>
+                           
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for estudiante in estudiantes %}
+                        <tr>
+                            <td>{{ estudiante.nombre }}</td>
+                            <td>{{ estudiante.matricula }}</td>
+                            
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+        </main>
+        <div class="buttons-container">
+            <button class="add">Añadir Estudiante</button>
+            <!-- File upload form -->
+            <form action="{% url 'subir_excel' %}" method="post" enctype="multipart/form-data" class="upload-form">
+                {% csrf_token %}
+                <input type="file" name="excel_file" accept=".xlsx, .xls" class="file-input">
+                <input type="hidden" name="claseId" value="{{claseId}}">
+                <button type="submit" class="add">Añadir Excel</button>
+            </form>
+        </div>
+
+    <footer>
+        <p>&copy; 2024 Youka Teachers. All Rights Reserved.</p>
+    </footer>
+</body>
+</html>

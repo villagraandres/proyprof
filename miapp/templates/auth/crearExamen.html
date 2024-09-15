@@ -1,0 +1,43 @@
+{%load static%}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Examen y Subir Calificaciones</title>
+    <link rel="stylesheet" href="{% static 'examenes_style.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>Gestión de Exámenes</h1>
+
+        <!-- Sección para crear un examen -->
+        <h2>Crear Examen</h2>
+        <form id="createExamForm" method="POST">
+            {% csrf_token %}
+            <label for="examTitle">Título del Examen:</label>
+            <input type="text" id="examTitle" name="examTitle" placeholder="Título del Examen" required>
+
+            <label for="examTitle">Paginas del examen:</label>
+            <input type="text" id="examTitle" name="pags" placeholder="Paginas del examen" required>
+
+            <label for="numQuestions">Número de Preguntas:</label>
+            <input type="number" id="numQuestions" name="numQuestions" placeholder="Cantidad de preguntas" min="1" required>
+
+            <h3>Configurar Preguntas y Respuestas</h3>
+
+            <div id="questionContainer"></div>
+
+            <button type="submit">Crear Examen</button>
+        </form>
+
+       
+
+            
+            <button type="submit">Subir y Calificar</button>
+        </form>
+    </div>
+
+    <script src="{% static 'js/examenes.js' %}"></script>
+</body>
+</html>

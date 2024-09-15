@@ -1,11 +1,64 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Inicio - Youka Teachers</title>
+    <link rel="stylesheet" href="{% static 'inicio_style.css' %}">
 </head>
 <body>
-    <h1>Hola</h1>
+    <header>
+        <div class="header-container">
+            <h1>Welcome to Youka Teachers</h1>
+            <div class="user-section">
+                <span>Teacher Name</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <section class="class-section">
+            <h2>Clases</h2>
+            <button class="add-class-button" onclick="openModal()">Añadir a Clase</button>
+            <div class="class-grid">
+                {% if clases %}
+                    {% for clase in clases %}
+                        <a href="{% url 'clase' clase.id %}" class="class-box">Clase {{ clase.nombre }}</a>
+                    {% endfor %}
+                {% else %}
+                    <p>No classes found.</p>
+                {% endif %}
+            </div>
+        </section>
+    </div>
+    
+   
+
+    <footer>
+        <p>&copy; 2024 Youka Teachers. All Rights Reserved.</p>
+    </footer>
+
+    <!-- Modal Structure -->
+    <div id="classModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Crear Nueva Clase</h2>
+            <form id="createClassForm">
+                <label for="className">Nombre de la Clase</label>
+                <input type="text" id="className" name="className" required>
+                <button type="button" id="crearClase">Crear Clase</button>
+            </form>
+        </div>
+    </div>
+
+    
+    <script>
+        const crearClaseUrl = "{% url 'crearClase' %}";
+        const csrfToken = "{{ csrf_token }}";
+        const usuarioId = "{{ user_id }}";
+    </script>
+
+    <script src="{% static 'js/clase.js' %}"></script>
 </body>
 </html>

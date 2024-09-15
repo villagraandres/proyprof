@@ -1,0 +1,42 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clase 1 - Youka Teachers</title>
+    <link rel="stylesheet" href="{% static 'clase_style.css' %}">
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <h1 class="titulo"><a href="inicio.html">Youka Teachers</a></h1>
+            <div class="user-section">
+                <span>Clase 1</span>
+            </div>
+        </div>
+    </header>
+    <div class="main-container">
+        <section class="class-options">
+            <a href="{%url 'crearExamen' claseId  %}" id="estudiantes-link">
+                <div class="option-box" id="estudiantes">
+                    <div class="icon">😊</div>
+                    <h3>CREAR</h3>
+                </div>
+            </a>
+            <a href="" id="estadisticas-link">
+                <div class="option-box" id="estadisticas">
+                    <div class="icon">📊</div>
+                    <h3>ESCANEAR</h3>
+                </div>
+            </a>
+           
+        </section>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Youka Teachers. All Rights Reserved.</p>
+    </footer>
+</body>
+</html>
