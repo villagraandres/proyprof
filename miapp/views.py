@@ -162,7 +162,7 @@ def gen_frames():
         yield (b'--frame\r\n'
                 b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
         
-def generate_image_directly(request):
+def screnie(request):
     frame = framework
     return HttpResponse(frame.tobytes(), content_type='image/jpeg')
 
