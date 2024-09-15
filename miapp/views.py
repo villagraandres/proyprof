@@ -11,9 +11,8 @@ from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 import json
 from .models import Clase, Profile,Examen,Estudiante # Import Profile
-from google.cloud import vision
+#from google.cloud import vision
 import io
-import pandas as pd
 import cv2
 import numpy as np
 import time
@@ -209,6 +208,7 @@ def estudiantes(request,claseId):
 
 
 framework = []
+selected = []
 def gen_frames():  
     global framework
     cap = cv2.VideoCapture(0)  # Capture video from the first camera (0)
@@ -281,47 +281,46 @@ def gen_frames():
         
 def screnie(request):
     global framework
-    frame = framework
+    global selected
+    selected = framework
 
-    # Ensure the media directory exists
-    if not os.path.exists(settings.MEDIA_ROOT):
-        os.makedirs(settings.MEDIA_ROOT)
-
-    # Construct the file path
-    img_name = f"screenshot_{datetime.date.today()}.png"
-    img_path = os.path.join(settings.MEDIA_ROOT, img_name)
-    
-    # Save the image to the media folder
-    success = cv2.imwrite(img_path, frame)
-    if not success:
-        return HttpResponse("Failed to save image", status=500)
 
     # Encode the frame as a JPEG image
-    _, buffer = cv2.imencode('.jpg', frame)  
+    _, buffer = cv2.imencode('.jpg', selected)  
 
     # Convert the buffer to bytes
     frame_bytes = buffer.tobytes()
-
+    
     # Return the image as an HTTP response
     return HttpResponse(frame_bytes, content_type='image/jpeg')
 
 # View for rendering the page with the video feed
 def video_feed(request):
+       
+    #    return render(request, 'camara/layout.html', context)
     return StreamingHttpResponse(gen_frames(), content_type='multipart/x-mixed-replace; boundary=frame')
 
 #def trans_feed(request):
 #    return StreamingHttpResponse(gen_trans(), content_type='multipart/x-mixed-replace; boundary=frame')
+def bruh(request):
+            logger.warning("entered")
+            global selected
+            frame = selected
+            if not os.path.exists(settings.MEDIA_ROOT):
+                os.makedirs(settings.MEDIA_ROOT)
+            now = datetime.datetime.now()
 
+            # Format the datetime to remove invalid characters for filenames
+            img_name = now.strftime("acreenshot_%Y%m%d_%H%M%S.png")
+            # Construct the file path
+            img_path = os.path.join(settings.MEDIA_ROOT, img_name)
+            
+            # Save the image to the media folder
+            success = cv2.imwrite(img_path, frame)
+            if not success:
+                return HttpResponse("Failed to save image", status=500)
+            return HttpResponse("I think this is not an image")
 
 # View to render the HTML template that will show the video feed
 def camera(request):
-
-    context = {
-            "active": False
-        }
-    #if request.method == "POST":
-    #    request.POST.get("btnTomarFoto")
-    #    context["active"] = True
-    #    return render(request, 'camara/layout.html', context)
-
-    return render(request, 'camara/layout.html', context)
+    return render(request, 'camara/layout.html')
