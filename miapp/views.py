@@ -10,11 +10,13 @@ from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 import json
 from .models import Clase, Profile  # Import Profile
-
+from google.cloud import vision
+import io
 
 logger = logging.getLogger(__name__)
 @csrf_exempt
 def index(request):
+    #imagen()
     if request.method == 'POST':
         email = request.POST.get('username')
         password = request.POST.get('password')
@@ -106,6 +108,23 @@ def dash(request):
         return render(request, "auth/dash.html", {'user_id': user_id, 'clases': clases})
     except Profile.DoesNotExist:
         return render(request, "auth/dash.html", {'user_id': user_id, 'clases': []})
+
+
+def imagen():
+    client = vision.ImageAnnotatorClient()
+
+    with io.open(r'C:\Users\villa\Documents\proyprof\miapp\imagen.png', 'rb') as image_file:
+        content = image_file.read()
+
+    image = vision.Image(content=content)
+
+    response = client.text_detection(image=image)
+    texts = response.text_annotations
+
+    for text in texts:
+        print(f'Detected text: {text.description}')
+
+
 
 def clase(request,claseId):
     clase= get_object_or_404(Clase, id=claseId)
