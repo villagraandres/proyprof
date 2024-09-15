@@ -94,7 +94,7 @@ def dash(request):
 
 def gen_frames():  
     cap = cv2.VideoCapture(0)  # Capture video from the first camera (0)
-    
+    lastSux = []
     while True:
         success, frame = cap.read()  # Read a frame
         if not success:
@@ -133,26 +133,27 @@ def gen_frames():
             epsilon = 0.05*cv2.arcLength(shapes[index],True)
             approx = cv2.approxPolyDP(shapes[index],epsilon,True)
             
-            cv2.drawContours(frame, shapes, index, (0,255,0), 3)
+            #cv2.drawContours(frame, shapes, index, (0,255,0), 3)
             
-            if len(approx):
-                full = len(approx)
-                last = full - 1
+            if len(approx) == 4:
+                lastSux = approx.copy()
                 
-                for x in range(full):
+                
+                
+                
+                
+            if len(lastSux):
+                last = 3
+                for x in range(4):
                     #cv2.circle(frame,approx[x][0], 10, (0,0,x*60), -1)
-                    cv2.line(frame, approx[last][0], approx[x][0], (0, 0, 255), 3)
+                    cv2.line(frame, lastSux[last][0], lastSux[x][0], (0, 0, 255), 3)
                     last = x
-            try:
-                if len(approx) == 4:
-                    pts1 = np.float32([[approx[0][0]], [approx[1][0]], [approx[2][0]], [approx[3][0]]])
+                
+                pts1 = np.float32([[lastSux[0][0]], [lastSux[1][0]], [lastSux[2][0]], [lastSux[3][0]]])
                     
-                    pts2 = np.float32([[0, 0], [0, 640], [480, 640], [480, 0]])
-                    M = cv2.getPerspectiveTransform(pts1, pts2)
-                    frame = cv2.warpPerspective(frame, M, (480, 640))
-                    
-            except cv2.error as e:
-                logger.warning(f"Transform error {e}")
+                pts2 = np.float32([[0, 0], [0, 640], [480, 640], [480, 0]])
+                M = cv2.getPerspectiveTransform(pts1, pts2)
+                frame2 = cv2.warpPerspective(frame, M, (480, 640))
             
             #cv2.drawContours(frame, approx, -1, (0,0,255), 3)
             
