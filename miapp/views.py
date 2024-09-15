@@ -108,3 +108,6 @@ def dash(request):
 
 def clase(request):
     return render(request,"auth/clase.html")
+
+def estudiantes(request):
+    return render(request,"auth/estudiantes.html")

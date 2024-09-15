@@ -6,5 +6,6 @@ urlpatterns = [
     path('crear',views.crear,name='crear'),
     path('auth/dash',views.dash,name='dash'),
     path('auth/clase',views.clase,name='clase'),
-    path('auth/crearClase',views.crearClase,name="crearClase")
+    path('auth/crearClase',views.crearClase,name="crearClase"),
+    path('auth/estudiantes',views.estudiantes,name="estudiantes")
 ]
