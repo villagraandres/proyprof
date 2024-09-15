@@ -24,7 +24,7 @@
             <div class="class-grid">
                 {% if clases %}
                     {% for clase in clases %}
-                        <a href="{% url 'clase' %}" class="class-box">Clase {{ clase.nombre }}</a>
+                        <a href="{% url 'clase' clase.id %}" class="class-box">Clase {{ clase.nombre }}</a>
                     {% endfor %}
                 {% else %}
                     <p>No classes found.</p>

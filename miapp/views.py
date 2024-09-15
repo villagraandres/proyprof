@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect,get_object_or_404
 from django.http import HttpResponse, JsonResponse  # Import JsonResponse
 from django.db import IntegrityError
 from django.contrib.auth.models import User
@@ -10,6 +10,7 @@ from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 import json
 from .models import Clase, Profile  # Import Profile
+
 
 logger = logging.getLogger(__name__)
 @csrf_exempt
@@ -106,8 +107,10 @@ def dash(request):
     except Profile.DoesNotExist:
         return render(request, "auth/dash.html", {'user_id': user_id, 'clases': []})
 
-def clase(request):
-    return render(request,"auth/clase.html")
+def clase(request,claseId):
+    clase= get_object_or_404(Clase, id=claseId)
+    return render(request,"auth/clase.html", {'clase': clase})
 
-def estudiantes(request):
+def estudiantes(request,claseId):
+    clase= get_object_or_404(Clase, id=claseId)
     return render(request,"auth/estudiantes.html")
