@@ -19,6 +19,7 @@ Este proyecto es una plataforma web construida con Django que automatiza el proc
 - **PostgreSQL**: Base de datos relacional utilizada en producción. (SQLite puede ser utilizado en entornos de desarrollo).
 - **Python**: Lenguaje de programación utilizado para desarrollar la aplicación.
 
+![Captura de Pantalla](media/img1.png)
 ## Requisitos Previos
 
 - Python 3.x
